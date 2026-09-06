@@ -1,0 +1,244 @@
+// Materna AI - Prisma schema
+// Default: SQLite (zero-infrastructure local persistence).
+// To use PostgreSQL / Supabase: change provider = "sqlite" to provider = "postgresql"
+// and set DATABASE_URL to your Postgres connection string, then run: npx prisma db push
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String   @id @default(cuid())
+  name                 String
+  email                String   @unique
+  phone                String?
+  passwordHash         String
+  age                  Int?
+  language             String   @default("en")
+  notificationsEnabled Boolean  @default(true)
+  isDemo               Boolean  @default(false)
+  plan                 String   @default("free")
+  createdAt            DateTime @default(now())
+
+  profile           PregnancyProfile?
+  history           PregnancyHistory[]
+  measurements      HealthMeasurement[]
+  symptoms          Symptom[]
+  observations      AiObservation[]
+  documents         MedicalDocument[]
+  appointments      Appointment[]
+  reminders         Reminder[]
+  wellbeing         MentalWellbeing[]
+  emergencyContacts EmergencyContact[]
+  orders            MedicineOrder[]
+  familyMembers     FamilyMember[]
+  notifications     Notification[]
+  doctorQuestions   DoctorQuestion[]
+  birthPlanItems    BirthPlanItem[]
+}
+
+model PregnancyProfile {
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status               String   @default("pregnant")
+  expectedDeliveryDate DateTime
+  gravida              Int      @default(1)
+  para                 Int      @default(0)
+  healthInfo           String?
+  bloodGroup           String?
+  heightCm             Float?
+  prePregnancyWeightKg Float?
+  updatedAt            DateTime @updatedAt
+}
+
+model PregnancyHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  year      Int
+  outcome   String
+  notes     String?
+  createdAt DateTime @default(now())
+}
+
+model HealthMeasurement {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type       String
+  systolic   Int?
+  diastolic  Int?
+  value      Float?
+  unit       String
+  recordedAt DateTime
+  note       String?
+  source     String   @default("manual")
+  createdAt  DateTime @default(now())
+
+  @@index([userId, type, recordedAt])
+}
+
+model Symptom {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String
+  severity   String   @default("mild")
+  recordedAt DateTime
+  note       String?
+}
+
+model AiObservation {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  metric       String
+  category     String
+  title        String
+  summary      String
+  evidenceJson String
+  dataJson     String
+  createdAt    DateTime @default(now())
+
+  @@unique([userId, metric])
+}
+
+model MedicalDocument {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title            String
+  docType          String
+  fileName         String?
+  mimeType         String?
+  storagePath      String?
+  sizeBytes        Int?
+  isDemo           Boolean   @default(false)
+  demoKey          String?
+  demoText         String?
+  documentDate     DateTime?
+  extractionStatus String    @default("pending")
+  uploadedAt       DateTime  @default(now())
+
+  extracted ExtractedDocumentData?
+}
+
+model ExtractedDocumentData {
+  id          String          @id @default(cuid())
+  documentId  String          @unique
+  document    MedicalDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  method      String
+  rawText     String?
+  fieldsJson  String
+  extractedAt DateTime        @default(now())
+}
+
+model Appointment {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind         String
+  type         String
+  providerName String?
+  facilityName String?
+  scheduledAt  DateTime
+  status       String   @default("scheduled")
+  notes        String?
+  createdAt    DateTime @default(now())
+}
+
+model Reminder {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  dose      String?
+  time      String
+  frequency String   @default("daily")
+  active    Boolean  @default(true)
+  source    String   @default("user")
+  createdAt DateTime @default(now())
+}
+
+model MentalWellbeing {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mood       Int
+  stress     Int
+  sleep      Int
+  note       String?
+  recordedAt DateTime
+}
+
+model EmergencyContact {
+  id        String  @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  relation  String
+  phone     String
+  isPrimary Boolean @default(true)
+}
+
+model MedicineOrder {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemsJson String
+  total     Float
+  status    String   @default("demo_placed")
+  createdAt DateTime @default(now())
+}
+
+model FamilyMember {
+  id                String  @id @default(cuid())
+  userId            String
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name              String
+  relation          String
+  phone             String?
+  shareAppointments Boolean @default(true)
+  shareReminders    Boolean @default(true)
+  shareEmergency    Boolean @default(true)
+  shareBirthPlan    Boolean @default(true)
+  shareHealthData   Boolean @default(false)
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model DoctorQuestion {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  metric    String?
+  question  String
+  status    String   @default("draft")
+  createdAt DateTime @default(now())
+}
+
+model BirthPlanItem {
+  id     String  @id @default(cuid())
+  userId String
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key    String
+  label  String
+  done   Boolean @default(false)
+  order  Int     @default(0)
+
+  @@unique([userId, key])
+}
