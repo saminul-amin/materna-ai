@@ -175,14 +175,16 @@ All routes require the session cookie except `auth/*`. Inputs are validated with
 
 No live URL is provided; deploy from this repository.
 
-**Option A — Vercel + Supabase (recommended for a hosted demo)**
+**Option A — Vercel + Postgres (recommended for a hosted demo)**
 
-1. Create a Supabase project; copy the Postgres URI.
-2. Switch Prisma provider to `postgresql` (see above), commit.
-3. Push the repo to GitHub and import it in Vercel.
-4. Set env vars in Vercel: `DATABASE_URL`, `SESSION_SECRET`, optionally `ANTHROPIC_API_KEY`.
-5. Build command `npm run build` (runs `prisma generate`), then run `npx prisma db push` once against the database (locally with the production `DATABASE_URL`, or as a one-off step).
-6. Note: Vercel's filesystem is ephemeral, so uploaded documents persist only for the life of a deployment. For a persistent vault, point `UPLOAD_DIR` at a mounted volume (Railway/Render/VM) or add object storage (Supabase Storage / S3) — listed under future work.
+`vercel.json` points the build at `scripts/vercel-build.mjs`, which derives a PostgreSQL schema from `prisma/schema.prisma`, generates the client, pushes the schema to the database, and runs `next build`. Nothing in the repo has to change between local SQLite and hosted Postgres.
+
+1. `vercel link` (or import the GitHub repo in the Vercel dashboard).
+2. Add a Postgres database from the Vercel Marketplace (Neon, Prisma Postgres, or Supabase) and connect it to the project; it injects `DATABASE_URL`. Any external Postgres URI set as `DATABASE_URL` works too.
+3. Set `SESSION_SECRET` (long random string) and `UPLOAD_DIR=/tmp/uploads`; optionally `ANTHROPIC_API_KEY`.
+4. `vercel --prod`.
+
+Note: Vercel's filesystem is ephemeral, so uploaded documents live in `/tmp` only for the life of a function instance; the database (measurements, extracted values, appointments, etc.) persists. For a persistent vault, use a VM/Railway/Render volume or add object storage (Supabase Storage / S3) — listed under future work.
 
 **Option B — Single VM / Railway / Render (simplest full-feature hosting)**
 
