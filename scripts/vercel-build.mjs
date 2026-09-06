@@ -23,9 +23,15 @@ if (!/^postgres(ql)?:\/\//.test(url)) {
 const direct = process.env.DATABASE_URL_UNPOOLED || process.env.POSTGRES_URL_NON_POOLING;
 if (direct) process.env.DIRECT_DATABASE_URL = direct;
 
-let schema = readFileSync("prisma/schema.prisma", "utf8").replace('provider = "sqlite"', 'provider = "postgresql"');
-if (direct) schema = schema.replace('url      = env("DATABASE_URL")', 'url      = env("DATABASE_URL")\n  directUrl = env("DIRECT_DATABASE_URL")');
+const original = readFileSync("prisma/schema.prisma", "utf8");
+let schema = original.replace(/provider\s*=\s*"sqlite"/, 'provider = "postgresql"');
+if (schema === original) {
+  console.error('Could not find provider = "sqlite" in prisma/schema.prisma; refusing to continue.');
+  process.exit(1);
+}
+if (direct) schema = schema.replace(/(url\s*=\s*env\("DATABASE_URL"\))/, '$1\n  directUrl = env("DIRECT_DATABASE_URL")');
 writeFileSync("prisma/schema.postgres.prisma", schema);
+console.log("Derived Postgres schema:", schema.match(/datasource db \{[\s\S]*?\}/)?.[0].replace(/\s+/g, " "));
 
 const run = (cmd) => {
   console.log("> " + cmd);
