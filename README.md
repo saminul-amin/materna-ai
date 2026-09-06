@@ -8,6 +8,8 @@
 ![Prisma](https://img.shields.io/badge/Prisma-6-2D3748)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green)
 
+**Live demo:** https://materna-ai-silk.vercel.app (Vercel + Neon Postgres, synthetic demo data — click **Try Demo**)
+
 > **Medical safety disclaimer.** Materna AI is a prototype for maternal health monitoring and decision support. It is **not** a diagnostic system, does **not** prescribe treatment, and does **not** replace qualified healthcare professionals or antenatal care. All AI observations are information to discuss with a qualified professional. In an emergency in Bangladesh, call **999**. The trend thresholds in this MVP are **Prototype/Demo Logic — Not for Clinical Use**.
 
 Functional MVP built for a university-level national AI startup competition demonstration. Uses **synthetic demo data only** — no real patients, providers, facilities, pharmacies or partnerships.
@@ -173,7 +175,7 @@ All routes require the session cookie except `auth/*`. Inputs are validated with
 
 ## Deployment
 
-No live URL is provided; deploy from this repository.
+The reference deployment runs at https://materna-ai-silk.vercel.app (Vercel + Neon Postgres free tier). To deploy your own copy:
 
 **Option A — Vercel + Postgres (recommended for a hosted demo)**
 
