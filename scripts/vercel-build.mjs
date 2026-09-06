@@ -24,7 +24,7 @@ const direct = process.env.DATABASE_URL_UNPOOLED || process.env.POSTGRES_URL_NON
 if (direct) process.env.DIRECT_DATABASE_URL = direct;
 
 const original = readFileSync("prisma/schema.prisma", "utf8");
-let schema = original.replace(/provider\s*=\s*"sqlite"/, 'provider = "postgresql"');
+let schema = original.replace(/provider\s*=\s*"sqlite"/g, 'provider = "postgresql"');
 if (schema === original) {
   console.error('Could not find provider = "sqlite" in prisma/schema.prisma; refusing to continue.');
   process.exit(1);

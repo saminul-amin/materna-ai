@@ -14,3 +14,6 @@ next-env.d.ts
 .vercel
 .env.local
 prisma/schema.postgres.prisma
+.agents/
+.claude/skills/
+skills-lock.json
