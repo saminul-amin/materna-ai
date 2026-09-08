@@ -2,7 +2,6 @@
 
 **From First Trimester to Delivery — Monitoring, Care Coordination, Emergency Access, and Everyday Wellbeing in One Platform**
 
-[![CI](https://github.com/saminul-amin/materna-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/saminul-amin/materna-ai/actions/workflows/ci.yml)
 ![Next.js 15](https://img.shields.io/badge/Next.js-15-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
 ![Prisma](https://img.shields.io/badge/Prisma-6-2D3748)
@@ -252,3 +251,7 @@ Clinical validation of trend logic and thresholds; real provider, pharmacy and l
 - The assistant never diagnoses, prescribes, or advises stopping medication; emergency phrasing routes to urgent care and 999.
 - Passwords hashed (bcrypt), signed HttpOnly cookies, middleware-protected routes, server-side Zod validation, per-user ownership checks on every record, uploads restricted by type and size, no secrets in the client bundle.
 - Synthetic demo data only; see `/privacy`.
+
+## Licence
+
+MIT — see [LICENSE](LICENSE). A medical notice accompanies it in [NOTICE.md](NOTICE.md).
